@@ -5,16 +5,17 @@ import pygame
 pygame.init()
 
 # ----- Gera tela principal
-window = pygame.display.set_mode((500, 400))
+WIDTH = 500
+HEIGHT = 400
+window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Hello World!')
 
 # ----- Inicia estruturas de dados
 game = True
 
 # ----- Inicia assets
-font = pygame.font.SysFont(None, 48)
-text1 = font.render('HELLO', True, (0, 0, 255))
-text2 = font.render('WORLD', True, (0, 0, 255))
+image = pygame.image.load('assets/img/logo-madfox.png').convert()
+image = pygame.transform.scale(image, (125, 166))
 
 # ===== Loop principal =====
 while game:
@@ -25,9 +26,8 @@ while game:
             game = False
 
     # ----- Gera saídas
-    window.fill((255, 255, 255))  # Preenche com a cor branca
-    window.blit(text1, (10, 10))
-    window.blit(text2, (10, 50))
+    window.fill((0, 0, 0))  # Preenche com a cor branca
+    window.blit(image, (10, 10))
 
     # ----- Atualiza estado do jogo
     pygame.display.update()  # Mostra o novo frame para o jogador
