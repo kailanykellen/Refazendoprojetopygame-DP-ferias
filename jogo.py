@@ -26,9 +26,15 @@ meteor_x = random.randint(0, WIDTH-METEOR_WIDTH)
 meteor_y = random.randint(-100, -METEOR_HEIGHT ) #começar a cima da tela
 meteor_speedx = random.randint(-3,3) #velocidade x
 meteor_speedy = random.randint(2,9) #velocidade y
+# Variável para o ajuste de velocidade
+clock = pygame.time.Clock()
+FPS = 30 #velocidade do jogo 
+
 
 # ===== Loop principal =====
 while game:
+    clock.tick(FPS)
+
     # ----- Trata eventos
     for event in pygame.event.get():
         # ----- Verifica consequências
