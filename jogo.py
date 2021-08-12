@@ -21,11 +21,11 @@ meteor_img_small = pygame.transform.scale(meteor_img, (METEOR_WIDTH, METEOR_HEIG
 
 # ----- Inicia estruturas de dados
 game = True
-meteor_x = 200
+meteor_x = random.randint(0, WIDTH-METEOR_WIDTH)
 # y negativo significa que está acima do topo da janela. O meteoro começa fora da janela
-meteor_y = -METEOR_HEIGHT #começar a cima da tela
-meteor_speedx = 3 #velocidade x
-meteor_speedy = 4 #velocidade y
+meteor_y = random.randint(-100, -METEOR_HEIGHT ) #começar a cima da tela
+meteor_speedx = random.randint(-3,3) #velocidade x
+meteor_speedy = random.randint(2,9) #velocidade y
 
 # ===== Loop principal =====
 while game:
@@ -41,8 +41,10 @@ while game:
     meteor_y += meteor_speedy
     # Se o meteoro passar do final da tela, volta para cima
     if meteor_y > HEIGHT or meteor_x + METEOR_WIDTH < 0 or meteor_x > WIDTH:
-        meteor_x = 200
-        meteor_y = -METEOR_HEIGHT
+        meteor_x = random.randint(0, WIDTH-METEOR_WIDTH)
+        meteor_y = random.randint(-100, -METEOR_HEIGHT )
+        meteor_speedx = random.randint(-3,3) #velocidade x
+        meteor_speedy = random.randint(2,9) #velocidade y
 
     # ----- Gera saídas
     window.fill((0, 0, 0))  # Preenche com a cor branca
