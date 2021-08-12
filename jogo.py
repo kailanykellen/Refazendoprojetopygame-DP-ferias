@@ -151,6 +151,9 @@ while game:
     # Atualizando a posição dos meteoros
     all_sprites.update()
 
+    #verifica se houve colisao entre os tiros e meteoros
+    pygame.sprite.groupcollide(all_meteors,all_bullets,True,True)
+
     # Verifica se houve colisão entre nave e meteoro
     hits = pygame.sprite.spritecollide(player, all_meteors, True)
     if len(hits) > 0:
@@ -165,5 +168,3 @@ while game:
 
 # ===== Finalização =====
 pygame.quit()  # Função do PyGame que finaliza os recursos utilizados
-
-
