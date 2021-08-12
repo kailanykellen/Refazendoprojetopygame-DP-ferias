@@ -41,7 +41,7 @@ class Ship (pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
-        self.speedx = -5 #velocidade x
+        self.speedx = 0 #velocidade x
 
     def update(self): #update vai garantir a movimentação da nave
         # Atualização da posição da nave
@@ -99,16 +99,27 @@ for i in range(8):
 while game:
     clock.tick(FPS)
 
-
     # ----- Trata eventos
     for event in pygame.event.get():
         # ----- Verifica consequências
         if event.type == pygame.QUIT:
             game = False
+        # Verifica se apertou alguma tecla.
+        if event.type == pygame.KEYDOWN:
+            # Dependendo da tecla, altera a velocidade.
+            if event.key == pygame.K_LEFT:
+                player.speedx -= 8
+            if event.key == pygame.K_RIGHT:
+                player.speedx += 8
+        # Verifica se soltou alguma tecla.
+        if event.type == pygame.KEYUP:
+            # Dependendo da tecla, altera a velocidade.
+            if event.key == pygame.K_LEFT:
+                player.speedx += 8
+            if event.key == pygame.K_RIGHT:
+                player.speedx -= 8
 
-
-  
-   # ----- Atualiza estado do jogo
+    # ----- Atualiza estado do jogo
     # Atualizando a posição dos meteoros
     all_sprites.update()
 
