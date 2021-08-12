@@ -33,6 +33,7 @@ for i in range(9):
     img = pygame.transform.scale(img, (32, 32))
     explosion_anim.append(img)
 assets["explosion_anim"] = explosion_anim
+assets["score_font"] = pygame.font.Font('assets/font/PressStart2P.ttf', 28)
 
 # Carrega os sons do jogo
 pygame.mixer.music.load('assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg') #som de fundo
@@ -44,11 +45,12 @@ assets['pew_sound'] = pygame.mixer.Sound('assets/snd/pew.wav') #o som da nave de
 # ----- Inicia estruturas de dados
 # Definindo os novos tipos
 class Ship(pygame.sprite.Sprite):
-    def __init__(self, groups, assets): #dicionario das imagens e o dicionario do audio 
+    def __init__(self, groups, assets):
         # Construtor da classe mãe (Sprite).
         pygame.sprite.Sprite.__init__(self)
 
         self.image = assets['ship_img']
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
@@ -182,7 +184,7 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
-game = True
+
 # Variável para o ajuste de velocidade
 clock = pygame.time.Clock()
 FPS = 30
@@ -205,64 +207,110 @@ for i in range(8):
     all_sprites.add(meteor)
     all_meteors.add(meteor)
 
+DONE = 0
+PLAYING = 1
+EXPLODING = 2
+state = PLAYING
+
+score = 0
+keys_down = {}
+lives = 3
+
 # ===== Loop principal =====
 pygame.mixer.music.play(loops=-1)
-while game:
+while state != DONE:
     clock.tick(FPS)
 
     # ----- Trata eventos
     for event in pygame.event.get():
         # ----- Verifica consequências
         if event.type == pygame.QUIT:
-            game = False
-        # Verifica se apertou alguma tecla.
-        if event.type == pygame.KEYDOWN:
-            # Dependendo da tecla, altera a velocidade.
-            if event.key == pygame.K_LEFT:
-                player.speedx -= 8
-            if event.key == pygame.K_RIGHT:
-                player.speedx += 8
-            if event.key == pygame.K_SPACE:
-                player.shoot()
-        # Verifica se soltou alguma tecla.
-        if event.type == pygame.KEYUP:
-            # Dependendo da tecla, altera a velocidade.
-            if event.key == pygame.K_LEFT:
-                player.speedx += 8
-            if event.key == pygame.K_RIGHT:
-                player.speedx -= 8
+            state = DONE
+        # Só verifica o teclado se está no estado de jogo
+        if state == PLAYING:
+            # Verifica se apertou alguma tecla.
+            if event.type == pygame.KEYDOWN:
+                # Dependendo da tecla, altera a velocidade.
+                keys_down[event.key] = True
+                if event.key == pygame.K_LEFT:
+                    player.speedx -= 8
+                if event.key == pygame.K_RIGHT:
+                    player.speedx += 8
+                if event.key == pygame.K_SPACE:
+                    player.shoot()
+            # Verifica se soltou alguma tecla.
+            if event.type == pygame.KEYUP:
+                # Dependendo da tecla, altera a velocidade.
+                if event.key in keys_down and keys_down[event.key]:
+                    if event.key == pygame.K_LEFT:
+                        player.speedx += 8
+                    if event.key == pygame.K_RIGHT:
+                        player.speedx -= 8
 
     # ----- Atualiza estado do jogo
     # Atualizando a posição dos meteoros
     all_sprites.update()
 
-    # Verifica se houve colisão entre tiro e meteoro
-    hits = pygame.sprite.groupcollide(all_meteors, all_bullets, True, True)
-    for meteor in hits: # As chaves são os elementos do primeiro grupo (meteoros) que colidiram com alguma bala
-        # O meteoro e destruido e precisa ser recriado
-        assets['destroy_sound'].play()
-        m = Meteor(assets)
-        all_sprites.add(m)
-        all_meteors.add(m)
-    # No lugar do meteoro antigo, adicionar uma explosão.
-        explosao = Explosion(meteor.rect.center, assets)
-        all_sprites.add(explosao)
+    if state == PLAYING:
+        # Verifica se houve colisão entre tiro e meteoro
+        hits = pygame.sprite.groupcollide(all_meteors, all_bullets, True, True)
+        for meteor in hits: # As chaves são os elementos do primeiro grupo (meteoros) que colidiram com alguma bala
+            # O meteoro e destruido e precisa ser recriado
+            assets['destroy_sound'].play()
+            m = Meteor(assets)
+            all_sprites.add(m)
+            all_meteors.add(m)
 
+            # No lugar do meteoro antigo, adicionar uma explosão.
+            explosao = Explosion(meteor.rect.center, assets)
+            all_sprites.add(explosao)
 
-    # Verifica se houve colisão entre nave e meteoro
-    hits = pygame.sprite.spritecollide(player, all_meteors, True)
-    if len(hits) > 0:
-        # Toca o som da colisão
-        assets['boom_sound'].play()
-        time.sleep(1) # Precisa esperar senão fecha
+            # Ganhou pontos!
+            score += 100
+            if score % 200 == 0:
+                lives += 1
 
-        game = False
+        # Verifica se houve colisão entre nave e meteoro
+        hits = pygame.sprite.spritecollide(player, all_meteors, True)
+        if len(hits) > 0:
+            # Toca o som da colisão
+            assets['boom_sound'].play()
+            player.kill()
+            lives -= 1            
+            explosao = Explosion(player.rect.center, assets)
+            all_sprites.add(explosao)
+            score = 0 #reinia a pontuação
+            state = EXPLODING
+            keys_down = {}
+            explosion_tick = pygame.time.get_ticks()
+            explosion_duration = explosao.frame_ticks * len(explosao.explosion_anim) + 400
+    elif state == EXPLODING:
+        now = pygame.time.get_ticks()
+        if now - explosion_tick > explosion_duration:
+            if lives == 0:
+                state = DONE
+            else:
+                state = PLAYING
+                player = Ship(groups, assets)
+                all_sprites.add(player)
 
     # ----- Gera saídas
     window.fill((0, 0, 0))  # Preenche com a cor branca
     window.blit(assets['background'], (0, 0))#cita a imagem que iremos trocar 
     # Desenhando meteoros
     all_sprites.draw(window)
+     
+ # Desenhando o score
+    text_surface = assets['score_font'].render("{:08d}".format(score), True, (255, 255, 0))
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (WIDTH / 2,  10)
+    window.blit(text_surface, text_rect)
+
+    # Desenhando as vidas
+    text_surface = assets['score_font'].render(chr(9829) * lives, True, (255, 0, 0))
+    text_rect = text_surface.get_rect()
+    text_rect.bottomleft = (10, HEIGHT - 10)
+    window.blit(text_surface, text_rect)
 
     pygame.display.update()  # Mostra o novo frame para o jogador
 
