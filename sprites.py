@@ -15,6 +15,7 @@ class Ship(pygame.sprite.Sprite):
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0
+        self.speedy = 0
         self.groups = groups
         self.assets = assets
 
@@ -25,12 +26,19 @@ class Ship(pygame.sprite.Sprite):
     def update(self):
         # Atualização da posição da nave
         self.rect.x += self.speedx
+        self.rect.y += self.speedy
 
-        # Mantem dentro da tela
-        if self.rect.right > WIDTH:
+        # Mantem dentro da tela x
+        if self.rect.right > WIDTH: #largura
             self.rect.right = WIDTH
         if self.rect.left < 0:
             self.rect.left = 0
+
+        # Mantem dentro da tela y
+        if self.rect.top < 0: #altura
+            self.rect.top = 0
+        if self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT
 
     def shoot(self):
         # Verifica se pode atirar

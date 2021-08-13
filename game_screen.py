@@ -57,6 +57,10 @@ def game_screen(window):
                         player.speedx -= 8
                     if event.key == pygame.K_RIGHT:
                         player.speedx += 8
+                    if event.key == pygame.K_UP:
+                        player.speedy -= 8
+                    if event.key == pygame.K_DOWN:
+                        player.speedy += 8
                     if event.key == pygame.K_SPACE:
                         player.shoot()
                 # Verifica se soltou alguma tecla.
@@ -109,6 +113,26 @@ def game_screen(window):
             if now - explosion_tick > explosion_duration:
                 if lives == 0:
                     state = DONE
+                    fim = True
+                    while fim:
+                        window.fill(BLACK)  # Preenche com a cor preta
+                        game_over = pygame.image.load('assets/img/game_over.png').convert_alpha()
+                        game_over = pygame.transform.scale(game_over, (270, 166))
+                        window.blit(game_over, (110, 200))
+
+                        pontuacao = pygame.font.SysFont(None, 48)        
+                        pont = pontuacao.render('PONTUAÇÃO:', True, (RED))
+                        window.blit(pont, (130, 52))
+
+                        text_surface = assets['score_font'].render("{:08d}".format(score), True, (255, 255, 0))
+                        text_rect = text_surface.get_rect()
+                        text_rect.midtop = (WIDTH / 2,  100)
+                        window.blit(text_surface, text_rect)
+
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                    fim = False
+                        pygame.display.update()
                 else:
                     state = PLAYING
                     player = Ship(groups, assets)

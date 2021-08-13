@@ -1,10 +1,9 @@
 # ===== Inicialização =====
 # ----- Importa e inicia pacotes
 import pygame
-from config import WIDTH, HEIGHT, INIT, GAME, QUIT
+from config import WIDTH, HEIGHT, INIT, GAME, QUIT 
 from init_screen import init_screen
 from game_screen import game_screen
-
 
 pygame.init()
 pygame.mixer.init()
@@ -21,6 +20,8 @@ while state != QUIT:
         state = game_screen(window)
     else:
         state = QUIT
+
+
 
 # ===== Finalização =====
 pygame.quit()  # Função do PyGame que finaliza os recursos utilizados
