@@ -10,7 +10,7 @@ def init_screen(screen):
 
     # Carrega o fundo da tela inicial
     background = pygame.image.load('tela_instrucoes.jpeg').convert()
-    background = pygame.transform.scale(background, (500, 650))
+    background = pygame.transform.scale(background, (500, 600))
     background_rect = background.get_rect()
 
     running = True
